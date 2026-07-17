@@ -723,6 +723,11 @@ app.get('/api/reports/:studentId/pdf', protect, asyncHandler(async (req, res) =>
 const NAVY = '#16233F', NAVY_DEEP = '#0B1424', GOLD = '#B08D57', GOLD_LIGHT = '#D9BE8E';
 const CREAM = '#FBF7EE', INK = '#22262E', INK_SOFT = '#666C78';
 const PAGE_MARGIN = 28;
+// School logo — same PNG already embedded in your frontend (index.html, the
+// base64 string used for .auth-form-logo img / the "crest" image). Copy that
+// exact base64 payload (the long string after "base64,") and paste it here.
+const LOGO_BASE64 = 'PASTE_YOUR_EXISTING_BASE64_PNG_STRING_HERE';
+const LOGO_BUFFER = Buffer.from(LOGO_BASE64, 'base64');
 
 function renderResultSheetPDF(sheet, res) {
   const doc = new PDFDocument({ size: 'A4', margin: PAGE_MARGIN, bufferPages: false });
