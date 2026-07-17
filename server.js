@@ -718,8 +718,54 @@ app.get('/api/reports/:studentId/pdf', protect, asyncHandler(async (req, res) =>
   res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
   renderResultSheetPDF(sheet, res);
 }));
+const puppeteer = require('puppeteer');
 
-// ---- Single-page A4 PDF layout engine (pdfkit — no headless browser needed) ----
+app.get('/api/reports/:studentId/pdf', async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const browser = await puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+
+    // Replace with your actual frontend result URL
+    const resultUrl = `${process.env.FRONTEND_URL}/results/${studentId}`;
+
+    await page.goto(resultUrl, {
+      waitUntil: 'networkidle0'
+    });
+
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '0',
+        right: '0',
+        bottom: '0',
+        left: '0'
+      }
+    });
+
+    await browser.close();
+
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=result-${studentId}.pdf`
+    });
+
+    res.send(pdf);
+
+  } catch (error) {
+    console.error('PDF generation failed:', error);
+    res.status(500).json({
+      error: 'Failed to generate PDF'
+    });
+  }
+});
+
 const NAVY = '#16233F', NAVY_DEEP = '#0B1424', GOLD = '#B08D57', GOLD_LIGHT = '#D9BE8E';
 const CREAM = '#FBF7EE', INK = '#22262E', INK_SOFT = '#666C78';
 const PAGE_MARGIN = 28;
