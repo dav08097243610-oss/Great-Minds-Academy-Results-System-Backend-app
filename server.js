@@ -749,9 +749,13 @@ function renderResultSheetPDF(sheet, res) {
   // Circular school logo
   const logoSize = 46, logoX = PAGE_MARGIN + 12, logoY = y + (HEADER_H - logoSize) / 2;
   doc.save();
-  doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2).clip();
+doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2).clip();
+try {
   doc.image(LOGO_BUFFER, logoX, logoY, { width: logoSize, height: logoSize });
-  doc.restore();
+} catch (err) {
+  console.error('Logo image failed to render:', err.message);
+}
+doc.restore();
   doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2).lineWidth(1.5).strokeColor(GOLD).stroke();
 
   const textX = logoX + logoSize + 12;
