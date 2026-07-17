@@ -743,18 +743,29 @@ function renderResultSheetPDF(sheet, res) {
   const fixedOverhead = HEADER_H + DIVIDER_H + INFO_H + TABLE_HEAD_H + SUMMARY_H + REMARKS_H + FOOTER_H + GAP * 6;
   const usableHeight = pageHeight - PAGE_MARGIN * 2;
   const availableForRows = Math.max(usableHeight - fixedOverhead, subjectCount * 10);
-  const rowHeight = Math.min(22, Math.max(11, availableForRows / subjectCount));
-  const rowFontSize = rowHeight < 14 ? 6.5 : rowHeight < 18 ? 8 : 9;
-
-  let y = PAGE_MARGIN;
-
   // HEADER
   doc.rect(PAGE_MARGIN, y, contentWidth, HEADER_H).fill(CREAM);
-  doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(20).text('GREAT MINDS ACADEMY', PAGE_MARGIN + 10, y + 10, { width: contentWidth - 190 });
-  doc.fillColor(GOLD).font('Helvetica-Bold').fontSize(9).text('— A C A D E M Y —', PAGE_MARGIN + 10, y + 32);
-  doc.fillColor(NAVY).font('Helvetica').fontSize(8).text('LEARN  ·  LEAD  ·  SUCCEED', PAGE_MARGIN + 10, y + 46);
+
+  // Circular school logo
+  const logoSize = 46, logoX = PAGE_MARGIN + 12, logoY = y + (HEADER_H - logoSize) / 2;
+  doc.save();
+  doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2).clip();
+  doc.image(LOGO_BUFFER, logoX, logoY, { width: logoSize, height: logoSize });
+  doc.restore();
+  doc.circle(logoX + logoSize / 2, logoY + logoSize / 2, logoSize / 2).lineWidth(1.5).strokeColor(GOLD).stroke();
+
+  const textX = logoX + logoSize + 12;
+  const textMaxW = contentWidth - 190 - (textX - PAGE_MARGIN);
+  doc.fillColor(NAVY).font('Helvetica-Bold').fontSize(20).text('GREAT MINDS ACADEMY', textX, y + 10, { width: textMaxW });
+  doc.fillColor(GOLD).font('Helvetica-Bold').fontSize(9).text('— A C A D E M Y —', textX, y + 32);
+  doc.fillColor(NAVY).font('Helvetica').fontSize(8).text('LEARN  ·  LEAD  ·  SUCCEED', textX, y + 46);
 
   const boxW = 170, boxX = PAGE_MARGIN + contentWidth - boxW;
+  doc.roundedRect(boxX, y, boxW, HEADER_H, 6).fill(NAVY_DEEP);
+  doc.fillColor(GOLD_LIGHT).font('Helvetica-Bold').fontSize(10).text('TERM REPORT CARD', boxX, y + 10, { width: boxW, align: 'center' });
+  doc.fillColor('#FFFFFF').font('Helvetica').fontSize(8).text(`${sheet.session} SESSION`, boxX, y + 25, { width: boxW, align: 'center' });
+  doc.roundedRect(boxX + boxW / 2 - 45, y + 40, 90, 16, 8).fill(GOLD);
+  doc.fillColor(NAVY_DEEP).font('Helvetica-Bold').fontSize(8).text(sheet.term.toUpperCase(), boxX + boxW / 2 - 45, y + 44, { width: 90, align: 'center' });
   doc.roundedRect(boxX, y, boxW, HEADER_H, 6).fill(NAVY_DEEP);
   doc.fillColor(GOLD_LIGHT).font('Helvetica-Bold').fontSize(10).text('TERM REPORT CARD', boxX, y + 10, { width: boxW, align: 'center' });
   doc.fillColor('#FFFFFF').font('Helvetica').fontSize(8).text(`${sheet.session} SESSION`, boxX, y + 25, { width: boxW, align: 'center' });
